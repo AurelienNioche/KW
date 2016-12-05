@@ -6,8 +6,7 @@ from save import save
 from time import time
 from datetime import datetime, timedelta
 import ctypes
-from os.path import expanduser, exists
-from os import mkdir
+from os import mkdir, path
 
 n = Value('i', 0)
 k = Value('i', 0)
@@ -66,15 +65,15 @@ def main():
 
     n.value = 100
 
-    db_path.value = "{}".format(expanduser("~/Desktop/KW.db")).encode()
+    db_path.value = "{}".format("../KW.db").encode()
 
-    fig_folder.value = "{}".format(expanduser("~/Desktop/fig")).encode()
+    fig_folder.value = "{}".format("../fig").encode()
 
-    if not exists(fig_folder.value):
+    if not path.exists(fig_folder.value.decode()):
 
-        mkdir(fig_folder.value)
+        mkdir(fig_folder.value.decode())
 
-    assert not exists(db_path.value), "Db already exists!"
+    assert not path.exists(db_path.value.decode()), "Db already exists!"
 
     pool = Pool(processes=cpu_count())
     pool.map(func=run, iterable=range(n.value))
