@@ -33,7 +33,7 @@ def run(i):
     parameters = {
         "t_max": 500,
         "alpha": np.random.uniform(0.01, 1),
-        "temp": np.random.uniform(0.01, 0.5),
+        "temp": np.random.uniform(0.01, 0.1),
         "role_repartition": np.array([500, 500, 500]),
         "storing_costs": np.array(
             [
