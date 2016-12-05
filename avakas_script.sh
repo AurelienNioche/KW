@@ -2,19 +2,19 @@
 
 #############################
 # Your job name (displayed by the queue)
-#PBS -N eco-simulation_0
+#PBS -N kw-simulation
 
 #change output file's name
-#PBS -e /home/anioche/aurelien/EcoSimulation-master/avakas_logs/eco-simulation_0.err
+#PBS -e /home/anioche/aurelien/KW-master/logs/KW-simulation.err
 
-#PBS -o /home/anioche/aurelien/EcoSimulation-master/avakas_logs/eco-simulation_0.log
+#PBS -o /home/anioche/aurelien/KW-master/logs/KW-simulation.log
 
 
 # Specify the working directory
-#PBS -d /home/anioche/aurelien/EcoSimulation-master/EcoSimulation
+#PBS -d /home/anioche/aurelien/KW-master/KW
 
 # walltime (hh:mm::ss)
-#PBS -l walltime=10:00:00
+#PBS -l walltime=01:00:00
 
 # Specify the number of nodes(nodes=) and the number of cores per nodes(ppn=) to be used
 #PBS -l nodes=1:ppn=6
@@ -44,6 +44,8 @@ echo "PBS_NODEFILE: " `cat ${PBS_NODEFILE} | uniq`
 echo "#############################"
 
 #############################
+
+mkdir ../logs
 
 # What you actually want to launch
 echo "Start the job"
