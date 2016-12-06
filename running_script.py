@@ -2,16 +2,16 @@ from multiprocessing import Pool, cpu_count, Value
 import numpy as np
 from main2 import launch, ModelA, ModelB
 from analysis import represent_results
-from save import save
+from save import save, get_id_list
 from time import time
 from datetime import datetime, timedelta
-import ctypes
 from os import mkdir, path
 
-n = Value('i', 0)
+n = 1000
 k = Value('i', 0)
-db_path = Value(ctypes.c_char_p, b"")
-fig_folder = Value(ctypes.c_char_p, b"")
+db_path = "../KW.db"
+fig_folder = "../fig"
+departure = time()
 
 
 def now():
@@ -21,19 +21,10 @@ def now():
 
 def run(i):
 
-    with k.get_lock():
-        old_k = k.value
-        k.value += 1
-
-    print("[{}]: Running {}/{} run...".format(now(), old_k + 1, n.value))
-    print()
-
-    a = time()
-
     parameters = {
         "t_max": 500,
         "alpha": np.random.uniform(0.01, 1),
-        "temp": np.random.uniform(0.01, 0.1),
+        "temp": np.random.uniform(0.01, 0.5),
         "role_repartition": np.array([500, 500, 500]),
         "storing_costs": np.array(
             [
@@ -42,45 +33,45 @@ def run(i):
                 sorted(np.random.random(3) / 2)
             ]
         ),
-        "model": ModelA()
+        "model": ModelB()
     }
 
     backup = \
         launch(parallel=True, **parameters)
 
-    save(parameters=parameters, backup=backup, idx=i, db_path=db_path.value.decode())
+    save(parameters=parameters, backup=backup, idx=i, db_path=db_path)
 
     represent_results(backup=backup, parameters=parameters, display=False,
-                      fig_name="{}/fig_{}.pdf".format(fig_folder.value.decode(), i))
+                      fig_name="{}/fig_{}.pdf".format(fig_folder, i))
 
-    b = time()
+    elapsed_time_sec = time() - departure
 
-    print("[{}] Finishing {}/{} run [{}].".format(now(), old_k + 1, n.value, timedelta(seconds=b-a)))
-    print()
+    with k.get_lock():
+
+        k.value += 1
+
+        elapsed_time = str(timedelta(seconds=elapsed_time_sec)).split(".")[0]
+        remaining_time_sec = (elapsed_time_sec / k.value) * (n - k.value)
+        remaining_time = str(timedelta(seconds=remaining_time_sec)).split(".")[0]
+
+        print("{:05.02f} % [elapsed time: {}, estimated remaining time: {}]".format(
+            (k.value / n) * 100, elapsed_time, remaining_time))
 
 
 def main():
 
-    a = time()
+    if not path.exists(fig_folder):
 
-    n.value = 100
+        mkdir(fig_folder)
 
-    db_path.value = "{}".format("../KW.db").encode()
-
-    fig_folder.value = "{}".format("../fig").encode()
-
-    if not path.exists(fig_folder.value.decode()):
-
-        mkdir(fig_folder.value.decode())
-
-    assert not path.exists(db_path.value.decode()), "Db already exists!"
+    id_list = get_id_list(db_path=db_path)
+    if id_list:
+        last_id = max(id_list)
+    else:
+        last_id = -1
 
     pool = Pool(processes=cpu_count())
-    pool.map(func=run, iterable=range(n.value))
-
-    b = time()
-
-    print("TOTAL RUNNING TIME: {}", timedelta(seconds=b-a))
+    pool.map(func=run, iterable=np.arange(n) + last_id + 1)
 
 
 if __name__ == "__main__":
