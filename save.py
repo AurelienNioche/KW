@@ -103,12 +103,27 @@ class Database(object):
         connection.close()
         # print("Database: Done for idx {}.".format(idx))
 
+    def get_id_list(self):
+
+        connection = connect(self.db_path)
+        cursor = connection.cursor()
+        q = "SELECT name FROM sqlite_master WHERE type='table'"
+        cursor.execute(q)
+        idx_list = np.unique([int(i[0].split('_')[1]) for i in cursor.fetchall()])
+        return idx_list
+
 
 def save(parameters, backup, db_path=path.expanduser("~/Desktop/KW.db"), idx=0):
 
     d = Database(db_path=db_path)
     d.save(idx=idx, parameters=parameters,
            backup=backup)
+
+
+def get_id_list(db_path):
+
+    d = Database(db_path=db_path)
+    return d.get_id_list()
 
 
 def test():

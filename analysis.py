@@ -30,8 +30,8 @@ def represent_results(backup, parameters, display=True, fig_name=None):
         y2.append(exchanges[2])
 
     ax.plot(x, y0, label="Exchange (1, 2)", linewidth=2)
-    ax.plot(x, y2, label="Exchange (1, 3)", linewidth=2)
-    ax.plot(x, y1, label="Exchange (2, 3)", linewidth=2)
+    ax.plot(x, y1, label="Exchange (1, 3)", linewidth=2)
+    ax.plot(x, y2, label="Exchange (2, 3)", linewidth=2)
     ax.legend()
 
     # Second subplot
